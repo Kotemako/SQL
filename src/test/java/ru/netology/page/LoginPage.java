@@ -1,43 +1,30 @@
 package ru.netology.page;
 
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
-import org.openqa.selenium.Keys;
-import static com.codeborne.selenide.Selenide.$;
+import org.openqa.selenium.support.FindBy;
+import ru.netology.data.DataHelper;
+
+import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selenide.page;
 
 public class LoginPage {
-    private SelenideElement loginInput = $("[data-test-id=login] input");
-    private SelenideElement passwordInput = $("[data-test-id=password] input");
-    private SelenideElement loginButton = $("[data-test-id=action-login");
-    private SelenideElement errorMessege = $("[data-test-id=error-notification");
+    @FindBy(css = "[data-test-id=login] input")
+    private SelenideElement loginField;
+    @FindBy(css = "[data-test-id=password] input")
+    private SelenideElement passwordField;
+    @FindBy(css = "[data-test-id=action-login]")
+    private SelenideElement loginButton;
+    @FindBy(css = "[data-test-id=error-notification]")
+    private SelenideElement errorNotification;
 
-    public VerificationPage logInn(String login, String password){
-        loginInput.setValue(login);
-        passwordInput.setValue(password);
+    public void verifyErrorNotificationVisibility() {
+        errorNotification.shouldBe(visible);
+    }
+
+    public VerificationPage validLogin(DataHelper.AuthInfo info) {
+        loginField.setValue(info.getLogin());
+        passwordField.setValue(info.getPassword());
         loginButton.click();
-        return new VerificationPage();
-    }
-    private void cleanForm() {
-        loginInput.doubleClick();
-        loginInput.sendKeys(Keys.DELETE);
-        passwordInput.doubleClick();
-        passwordInput.sendKeys(Keys.DELETE);
-    }
-
-    public LoginPage incorrectPassword(String login, String password) {
-        cleanForm();
-        loginInput.setValue(login);
-        passwordInput.setValue(password);
-        loginButton.click();
-        errorMessege.shouldBe(Condition.visible);
-        return new LoginPage();
-    }
-
-    public LoginPage tripleIncorrecItnput(String login, String password) {
-        for (int run = 0; run < 3; run++) {
-            incorrectPassword(login, password);
-        }
-        loginButton.shouldBe(Condition.disabled);
-        return new LoginPage();
+        return page(VerificationPage.class);
     }
 }
